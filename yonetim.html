@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Apartman & Site Yönetim Sistemi</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p:#2563eb;--p2:#1d4ed8;--bg:#f1f5f9;--card:#fff;
+  --text:#0f172a;--muted:#64748b;--bd:#e2e8f0;
+  --ok:#16a34a;--bad:#dc2626;--warn:#f59e0b;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+html,body{height:100%}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:14px}
+.hidden{display:none !important}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:14px;padding:9px 12px;border:1px solid var(--bd);border-radius:8px;width:100%;background:#fff;color:var(--text);transition:.15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--p);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin-bottom:4px}
+.muted{color:var(--muted)}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%)}
+.login-card{background:#fff;padding:34px;border-radius:16px;width:100%;max-width:420px;box-shadow:0 20px 40px rgba(0,0,0,.25)}
+.login-logo{font-size:46px;text-align:center;margin-bottom:6px}
+.login-card h1{font-size:21px;text-align:center;margin-bottom:4px}
+.login-card>p{text-align:center;font-size:13px;color:var(--muted);margin-bottom:22px}
+.tabs{display:flex;gap:4px;background:#f1f5f9;padding:4px;border-radius:10px;margin-bottom:20px}
+.tab{flex:1;padding:9px;border-radius:7px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
+.tab.active{background:#fff;color:var(--p);box-shadow:var(--shadow)}
+.login-form{display:flex;flex-direction:column;gap:14px}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;transition:.15s;justify-content:center;text-decoration:none}
+.btn-primary{background:var(--p);color:#fff}
+.btn-primary:hover{background:var(--p2)}
+.btn-success{background:var(--ok);color:#fff}
+.btn-success:hover{filter:brightness(.9)}
+.btn-danger{background:var(--bad);color:#fff}
+.btn-danger:hover{filter:brightness(.9)}
+.btn-outline{border:1px solid var(--bd);background:#fff;color:var(--text)}
+.btn-outline:hover{background:#f8fafc}
+.btn-sm{padding:5px 10px;font-size:12px}
+
+/* PANEL */
+.panel{display:flex;min-height:100vh}
+.sidebar{width:250px;background:#0f172a;color:#cbd5e1;padding:20px;display:flex;flex-direction:column;gap:8px;position:sticky;top:0;height:100vh;flex-shrink:0}
+.brand{font-size:16px;font-weight:700;color:#fff;padding:8px 4px 18px;border-bottom:1px solid #1e293b;margin-bottom:8px}
+.sidebar nav{display:flex;flex-direction:column;gap:2px;flex:1}
+.nav-item{text-align:left;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:500;color:#cbd5e1;transition:.15s}
+.nav-item:hover{background:#1e293b;color:#fff}
+.nav-item.active{background:var(--p);color:#fff}
+.logout{margin-top:auto;border-color:#334155 !important;color:#cbd5e1;background:transparent}
+.logout:hover{background:#1e293b}
+.content{flex:1;padding:28px;overflow-x:auto;min-width:0}
+.page{display:none}
+.page.active{display:block;animation:fade .2s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+h2.page-title{font-size:22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h3{font-size:15px}
+
+/* CARDS */
+.card{background:var(--card);border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:20px}
+.stat{background:#fff;border-radius:12px;padding:18px;box-shadow:var(--shadow);border-left:4px solid var(--p)}
+.stat.green{border-color:var(--ok)}
+.stat.red{border-color:var(--bad)}
+.stat.orange{border-color:var(--warn)}
+.stat .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.stat .value{font-size:22px;font-weight:700;margin-top:6px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--bd);background:#fff}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--bd)}
+th{background:#f8fafc;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#f8fafc}
+.empty{padding:36px;text-align:center;color:var(--muted)}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.ok{background:#dcfce7;color:#166534}
+.badge.bad{background:#fee2e2;color:#991b1b}
+.badge.info{background:#dbeafe;color:#1e40af}
+.badge.warn{background:#fef3c7;color:#92400e}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+
+/* FORM GRID */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid .full{grid-column:1/-1}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.6);display:flex;align-items:center;justify-content:center;padding:20px;z-index:1000}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:0 25px 50px rgba(0,0,0,.3)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:#fff;z-index:1}
+.modal-head h3{font-size:16px}
+.modal-close{font-size:26px;line-height:1;color:var(--muted);padding:0 4px}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:22px}
+.modal-body form{display:flex;flex-direction:column;gap:16px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+
+/* MOBILE */
+@media(max-width:820px){
+  .panel{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;flex-direction:column;padding:14px}
+  .sidebar nav{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+  .nav-item{white-space:nowrap}
+  .content{padding:16px}
+  .brand{padding-bottom:12px}
+  .logout{margin-top:8px}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="login-logo">🏢</div>
+    <h1 id="loginSiteAdi">Apartman Yönetimi</h1>
+    <p>Yönetim Sistemine Hoş Geldiniz</p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="admin" type="button">Yönetici Girişi</button>
+      <button class="tab" data-tab="resident" type="button">Malik Girişi</button>
+    </div>
+
+    <form id="adminLoginForm" class="login-form">
+      <div>
+        <label for="admUser">Kullanıcı Adı</label>
+        <input type="text" id="admUser" required autocomplete="username">
+      </div>
+      <div>
+        <label for="admPass">Şifre</label>
+        <input type="password" id="admPass" required autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" type="submit">Giriş Yap</button>
+      <p class="hint">Varsayılan: <b>admin</b> / <b>1234</b></p>
+    </form>
+
+    <form id="residentLoginForm" class="login-form hidden">
+      <div>
+        <label for="resUser">Kullanıcı Adı</label>
+        <input type="text" id="resUser" required autocomplete="username">
+      </div>
+      <div>
+        <label for="resPass">Şifre</label>
+        <input type="password" id="resPass" required autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary" type="submit">Giriş Yap</button>
+      <p class="hint">Kullanıcı adınızı yöneticiden alınız. (Örnek: <b>a1</b> / <b>1234</b>)</p>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== ADMIN PANEL ==================== -->
+<div id="adminPanel" class="panel hidden">
+  <aside class="sidebar">
+    <div class="brand">🏢 <span id="adminBrand">Yönetim Paneli</span></div>
+    <nav>
+      <button class="nav-item active" data-page="adm-genel">📊 Genel Bakış</button>
+      <button class="nav-item" data-page="adm-daireler">🏠 Daireler</button>
+      <button class="nav-item" data-page="adm-aidat">💰 Aidat İşlemleri</button>
+      <button class="nav-item" data-page="adm-harcama">📉 Harcamalar</button>
+      <button class="nav-item" data-page="adm-duyuru">📢 Duyurular</button>
+      <button class="nav-item" data-page="adm-ayar">⚙️ Ayarlar</button>
+    </nav>
+    <button class="btn btn-outline logout" type="button" onclick="logout()">Çıkış Yap</button>
+  </aside>
+  <main class="content">
+    <div id="adm-genel" class="page active"></div>
+    <div id="adm-daireler" class="page"></div>
+    <div id="adm-aidat" class="page"></div>
+    <div id="adm-harcama" class="page"></div>
+    <div id="adm-duyuru" class="page"></div>
+    <div id="adm-ayar" class="page"></div>
+  </main>
+</div>
+
+<!-- ==================== RESIDENT PANEL ==================== -->
+<div id="residentPanel" class="panel hidden">
+  <aside class="sidebar">
+    <div class="brand">🏢 <span id="resBrand">Malik Paneli</span></div>
+    <nav>
+      <button class="nav-item active" data-page="res-genel">📊 Genel Bakış</button>
+      <button class="nav-item" data-page="res-aidat">💰 Aidatlarım</button>
+      <button class="nav-item" data-page="res-harcama">📉 Harcamalar</button>
+      <button class="nav-item" data-page="res-duyuru">📢 Duyurular</button>
+    </nav>
+    <button class="btn btn-outline logout" type="button" onclick="logout()">Çıkış Yap</button>
+  </aside>
+  <main class="content">
+    <div id="res-genel" class="page active"></div>
+    <div id="res-aidat" class="page"></div>
+    <div id="res-harcama" class="page"></div>
+    <div id="res-duyuru" class="page"></div>
+  </main>
+</div>
+
+<!-- ==================== MODAL ==================== -->
+<div id="modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Başlık</h3>
+      <button class="modal-close" type="button" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalBody" class="modal-body"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1. VERİ KATMANI (localStorage)
+   ============================================================ */
+const K = {
+  users:'asm_users', tah:'asm_tah', ode:'asm_ode',
+  har:'asm_har', duy:'asm_duy', ayr:'asm_ayr', ses:'asm_ses'
+};
+
+const read  = (k,d=[]) => { try { const v = JSON.parse(localStorage.getItem(k)); return v==null ? d : v; } catch { return d; } };
+const write = (k,v)    => localStorage.setItem(k, JSON.stringify(v));
+const uid   = ()       => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc   = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt   = n => new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:2}).format(Number(n)||0);
+const AYLAR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const fmtAy = s => { if(!s) return '-'; const [y,m] = s.split('-'); return (AYLAR[+m-1]||m) + ' ' + y; };
+const fmtT  = s => s ? new Date(s).toLocaleDateString('tr-TR') : '-';
+const today = () => new Date().toISOString().slice(0,10);
+const thisMonth = () => new Date().toISOString().slice(0,7);
+
+const KATEGORILER = ['Elektrik','Su','Doğalgaz','Asansör Bakım','Temizlik','Personel',
+                     'Kırtasiye','Tamirat','Boya/Badana','Bahçe','Kamera/Güvenlik',
+                     'Sigorta','Vergi/Harç','Diğer'];
+
+/* ---- İlk kurulum ---- */
+function init(){
+  if(!localStorage.getItem(K.ayr)){
+    write(K.ayr, { siteAdi:'Güneş Sitesi', aylikAidat:750, admUser:'admin', admPass:'1234' });
+  }
+  [K.users, K.tah, K.ode, K.har, K.duy].forEach(k => { if(!localStorage.getItem(k)) write(k, []); });
+
+  if(read(K.users).length === 0){
+    write(K.users, [
+      {id:uid(), blok:'A', daire:'1', ad:'Ahmet Yılmaz',  telefon:'0555 111 22 33', email:'ahmet@mail.com',  kullanici:'a1', sifre:'1234', aidat:750},
+      {id:uid(), blok:'A', daire:'2', ad:'Ayşe Demir',    telefon:'0555 222 33 44', email:'ayse@mail.com',   kullanici:'a2', sifre:'1234', aidat:750},
+      {id:uid(), blok:'B', daire:'1', ad:'Mehmet Kaya',   telefon:'0555 333 44 55', email:'mehmet@mail.com', kullanici:'b1', sifre:'1234', aidat:750}
+    ]);
+  }
+  if(read(K.duy).length === 0){
+    write(K.duy, [{
+      id:uid(), baslik:'Hoş Geldiniz',
+      icerik:'Apartman yönetim sistemimize hoş geldiniz. Duyurular burada yayınlanacaktır.',
+      tarih: today(), onemli:false
+    }]);
+  }
+}
+
+/* ============================================================
+   2. OTURUM
+   ============================================================ */
+let session = read(K.ses, null);
+
+function currentResident(){
+  if(!session || session.type !== 'resident') return null;
+  return read(K.users).find(u => u.id === session.userId) || null;
+}
+
+function resBakiye(userId){
+  const t = read(K.tah).filter(x => x.daireId === userId).reduce((s,x)=>s + Number(x.tutar), 0);
+  const o = read(K.ode).filter(x => x.daireId === userId).reduce((s,x)=>s + Number(x.tutar), 0);
+  return { t, o, b: t - o };
+}
+
+/* ============================================================
+   3. MODAL
+   ============================================================ */
+function openModal(title, html){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){
+  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('modalBody').innerHTML = '';
+}
+
+/* ============================================================
+   4. GİRİŞ / ÇIKIŞ
+   ============================================================ */
+function showAdmin(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('residentPanel').classList.add('hidden');
+  document.getElementById('adminPanel').classList.remove('hidden');
+  const a = read(K.ayr);
+  document.getElementById('adminBrand').textContent = a.siteAdi;
+  setActivePage('adminPanel','adm-genel');
+  renderAdmGenel();
+}
+
+function showResident(u){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('residentPanel').classList.remove('hidden');
+  const a = read(K.ayr);
+  document.getElementById('resBrand').textContent = a.siteAdi;
+  setActivePage('residentPanel','res-genel');
+  renderResGenel();
+}
+
+function setActivePage(panelId, pageId){
+  const p = document.getElementById(panelId);
+  p.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+  p.querySelectorAll('.page').forEach(x => x.classList.toggle('active', x.id === pageId));
+}
+
+function logout(){
+  session = null;
+  localStorage.removeItem(K.ses);
+  document.getElementById('adminPanel').classList.add('hidden');
+  document.getElementById('residentPanel').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('adminLoginForm').reset();
+  document.getElementById('residentLoginForm').reset();
+}
+
+/* ============================================================
+   5. SAYFA YÖNLENDİRİCİ
+   ============================================================ */
+function renderPage(id){
+  const map = {
+    'adm-genel'   : renderAdmGenel,
+    'adm-daireler': renderAdmDaireler,
+    'adm-aidat'   : renderAdmAidat,
+    'adm-harcama' : renderAdmHarcama,
+    'adm-duyuru'  : renderAdmDuyuru,
+    'adm-ayar'    : renderAdmAyar,
+    'res-genel'   : renderResGenel,
+    'res-aidat'   : renderResAidat,
+    'res-harcama' : renderResHarcama,
+    'res-duyuru'  : renderResDuyuru
+  };
+  if(map[id]) map[id]();
+}
+
+/* ============================================================
+   6. YÖNETİCİ — GENEL BAKIŞ
+   ============================================================ */
+function renderAdmGenel(){
+  const users = read(K.users);
+  const tah   = read(K.tah);
+  const ode   = read(K.ode);
+  const har   = read(K.har);
+
+  const tTah = tah.reduce((s,x)=>s + Number(x.tutar), 0);
+  const tOde = ode.reduce((s,x)=>s + Number(x.tutar), 0);
+  const tHar = har.reduce((s,x)=>s + Number(x.tutar), 0);
+  const kasa = tOde - tHar;
+
+  const sonOdemeler = ode.slice().sort((a,b)=> (b.tarih||'').localeCompare(a.tarih||'')).slice(0,5);
+
+  document.getElementById('adm-genel').innerHTML = `
+    <h2 class="page-title">Genel Bakış</h2>
+    <div class="stats">
+      <div class="stat"><div class="label">Toplam Daire</div><div class="value">${users.length}</div></div>
+      <div class="stat orange"><div class="label">Toplam Tahakkuk</div><div class="value">${fmt(tTah)}</div></div>
+      <div class="stat green"><div class="label">Toplam Tahsilat</div><div class="value">${fmt(tOde)}</div></div>
+      <div class="stat red"><div class="label">Toplam Harcama</div><div class="value">${fmt(tHar)}</div></div>
+      <div class="stat ${kasa>=0?'green':'red'}"><div class="label">Kasa Bakiyesi</div><div class="value">${fmt(kasa)}</div></div>
+      <div class="stat red"><div class="label">Toplam Açık Borç</div><div class="value">${fmt(tTah - tOde)}</div></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px">Son Ödemeler</h3>
+      ${sonOdemeler.length ? `
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tarih</th><th>Daire</th><th>Dönem</th><th>Tutar</th></tr></thead>
+          <tbody>
+            ${sonOdemeler.map(o=>{
+              const u = users.find(x=>x.id===o.daireId);
+              return `<tr>
+                <td>${fmtT(o.tarih)}</td>
+                <td>${u ? esc(u.blok+'-'+u.daire+' '+u.ad) : '-'}</td>
+                <td>${fmtAy(o.ay)}</td>
+                <td><span class="badge ok">${fmt(o.tutar)}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty">Kayıt yok</div>'}
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px">Borçlu Daireler</h3>
+      ${renderBorcTablosu()}
+    </div>
+  `;
+}
+
+function renderBorcTablosu(){
+  const users = read(K.users);
+  const tah   = read(K.tah);
+  const ode   = read(K.ode);
+
+  const rows = users.map(u => {
+    const t = tah.filter(x=>x.daireId===u.id).reduce((s,x)=>s + Number(x.tutar), 0);
+    const o = ode.filter(x=>x.daireId===u.id).reduce((s,x)=>s + Number(x.tutar), 0);
+    return { u, t, o, b: t-o };
+  }).filter(r => r.b > 0).sort((a,b)=>b.b - a.b);
+
+  if(!rows.length) return '<div class="empty">Borçlu daire yok 🎉</div>';
+
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>Daire</th><th>Malik</th><th>Tahakkuk</th><th>Ödeme</th><th>Bakiye</th></tr></thead>
+    <tbody>
+      ${rows.map(r=>`<tr>
+        <td><strong>${esc(r.u.blok)}-${esc(r.u.daire)}</strong></td>
+        <td>${esc(r.u.ad)}</td>
+        <td>${fmt(r.t)}</td>
+        <td>${fmt(r.o)}</td>
+        <td><span class="badge bad">${fmt(r.b)}</span></td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+}
+
+/* ============================================================
+   7. YÖNETİCİ — DAİRELER
+   ============================================================ */
+function renderAdmDaireler(){
+  const users = read(K.users);
+  const tah   = read(K.tah);
+  const ode   = read(K.ode);
+
+  document.getElementById('adm-daireler').innerHTML = `
+    <h2 class="page-title">Daireler & Malikler
+      <button class="btn btn-primary" onclick="daireForm()">+ Yeni Daire</button>
+    </h2>
+    ${users.length ? `
+      <div class="table-wrap"><table>
+        <thead><tr>
+          <th>Blok/Daire</th><th>Malik</th><th>İletişim</th>
+          <th>Kullanıcı</th><th>Aylık Aidat</th><th>Bakiye</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${users.map(u=>{
+            const t = tah.filter(x=>x.daireId===u.id).reduce((s,x)=>s + Number(x.tutar), 0);
+            const o = ode.filter(x=>x.daireId===u.id).reduce((s,x)=>s + Number(x.tutar), 0);
+            const b = t - o;
+            const badge = b > 0 ? `<span class="badge bad">${fmt(b)}</span>`
+                        : b < 0 ? `<span class="badge ok">${fmt(-b)} alacak</span>`
+                        : `<span class="badge info">0</span>`;
+            return `<tr>
+              <td><strong>${esc(u.blok)}-${esc(u.daire)}</strong></td>
+              <td>${esc(u.ad)}</td>
+              <td>${esc(u.telefon||'-')}<br><small class="muted">${esc(u.email||'')}</small></td>
+              <td>${esc(u.kullanici)}</td>
+              <td>${fmt(u.aidat)}</td>
+              <td>${badge}</td>
+              <td class="actions">
+                <button class="btn btn-outline btn-sm" onclick="daireForm('${u.id}')">Düzenle</button>
+                <button class="btn btn-danger btn-sm" onclick="daireSil('${u.id}')">Sil</button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>` : '<div class="card empty">Henüz daire kaydı yok.</div>'}
+  `;
+}
+
+function daireForm(id){
+  const users = read(K.users);
+  const u = id ? users.find(x=>x.id===id) : null;
+  const a = read(K.ayr);
+
+  openModal(u ? 'Daire Düzenle' : 'Yeni Daire', `
+    <form onsubmit="return daireKaydet(event, ${id ? `'${id}'` : 'null'})">
+      <div class="form-grid">
+        <div><label>Blok</label><input name="blok" value="${esc(u?.blok||'')}" required></div>
+        <div><label>Daire No</label><input name="daire" value="${esc(u?.daire||'')}" required></div>
+        <div class="full"><label>Ad Soyad</label><input name="ad" value="${esc(u?.ad||'')}" required></div>
+        <div><label>Telefon</label><input name="telefon" value="${esc(u?.telefon||'')}"></div>
+        <div><label>E-posta</label><input name="email" type="email" value="${esc(u?.email||'')}"></div>
+        <div><label>Kullanıcı Adı</label><input name="kullanici" value="${esc(u?.kullanici||'')}" required></div>
+        <div><label>Şifre</label><input name="sifre" value="${esc(u?.sifre||'')}" required></div>
+        <div class="full"><label>Aylık Aidat (₺)</label><input name="aidat" type="number" step="0.01" value="${u?.aidat ?? a.aylikAidat}" required></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary">Kaydet</button>
+      </div>
+    </form>
+  `);
+}
+
+function daireKaydet(e, id){
+  e.preventDefault();
+  const f = e.target;
+  const data = {
+    blok: f.blok.value.trim(), daire: f.daire.value.trim(), ad: f.ad.value.trim(),
+    telefon: f.telefon.value.trim(), email: f.email.value.trim(),
+    kullanici: f.kullanici.value.trim(), sifre: f.sifre.value,
+    aidat: Number(f.aidat.value) || 0
+  };
+  if(!data.blok || !data.daire || !data.ad || !data.kullanici || !data.sifre) return false;
+
+  const users = read(K.users);
+  if(users.some(u => u.kullanici === data.kullanici && u.id !== id)){
+    alert('Bu kullanıcı adı zaten kullanılıyor!');
+    return false;
+  }
+  if(id){
+    const i = users.findIndex(x=>x.id===id);
+    users[i] = { ...users[i], ...data };
+  } else {
+    users.push({ id: uid(), ...data });
+  }
+  write(K.users, users);
+  closeModal();
+  renderAdmDaireler();
+  return false;
+}
+
+function daireSil(id){
+  if(!confirm('Bu daireyi silmek istediğinize emin misiniz? İlgili tüm kayıtlar da silinecek.')) return;
+  write(K.users, read(K.users).filter(u=>u.id!==id));
+  write(K.tah,   read(K.tah).filter(x=>x.daireId!==id));
+  write(K.ode,   read(K.ode).filter(x=>x.daireId!==id));
+  renderAdmDaireler();
+}
+
+/* ============================================================
+   8. YÖNETİCİ — AİDAT İŞLEMLERİ
+   ============================================================ */
+function renderAdmAidat(){
+  const users = read(K.users);
+  const tah   = read(K.tah).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+  const ode   = read(K.ode).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+
+  document.getElementById('adm-aidat').innerHTML = `
+    <h2 class="page-title">Aidat İşlemleri</h2>
+
+    <div class="card" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="topluTahakkukForm()">📅 Toplu Aidat Tahakkuk Et</button>
+      <button class="btn btn-outline" onclick="tahakkukForm()">+ Tek Daire Tahakkuk</button>
+      <button class="btn btn-success" onclick="odemeForm()">💰 Aidat Girişi (Ödeme Al)</button>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px">Borçlandırmalar (Tahakkuk)</h3>
+      ${tah.length ? `
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tarih</th><th>Daire</th><th>Dönem</th><th>Açıklama</th><th>Tutar</th><th></th></tr></thead>
+          <tbody>
+            ${tah.map(t=>{
+              const u = users.find(x=>x.id===t.daireId);
+              return `<tr>
+                <td>${fmtT(t.tarih)}</td>
+                <td>${u ? esc(u.blok+'-'+u.daire+' '+u.ad) : '-'}</td>
+                <td>${fmtAy(t.ay)}</td>
+                <td>${esc(t.aciklama||'-')}</td>
+                <td>${fmt(t.tutar)}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="silTah('${t.id}')">Sil</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty">Kayıt yok</div>'}
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:14px">Aidat Girişleri (Ödemeler)</h3>
+      ${ode.length ? `
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tarih</th><th>Daire</th><th>Dönem</th><th>Yöntem</th><th>Açıklama</th><th>Tutar</th><th></th></tr></thead>
+          <tbody>
+            ${ode.map(o=>{
+              const u = users.find(x=>x.id===o.daireId);
+              return `<tr>
+                <td>${fmtT(o.tarih)}</td>
+                <td>${u ? esc(u.blok+'-'+u.daire+' '+u.ad) : '-'}</td>
+                <td>${fmtAy(o.ay)}</td>
+                <td>${esc(o.yontem||'-')}</td>
+                <td>${esc(o.aciklama||'-')}</td>
+                <td><span class="badge ok">${fmt(o.tutar)}</span></td>
+                <td><button class="btn btn-danger btn-sm" onclick="silOde('${o.id}')">Sil</button></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty">Kayıt yok</div>'}
+    </div>
+  `;
+}
+
+function topluTahakkukForm(){
+  const users = read(K.users);
+  if(!users.length){ alert('Önce daire ekleyin.'); return; }
+
+  openModal('Toplu Aidat Tahakkuk', `
+    <form onsubmit="return topluTahakkukKaydet(event)">
+      <div class="form-grid">
+        <div><label>Dönem (Ay)</label><input type="month" name="ay" value="${thisMonth()}" required></div>
+        <div><label>Tutar Kaynağı</label>
+          <select name="tutarTipi">
+            <option value="daire">Her dairenin kendi aidatı</option>
+            <option value="ozel">Özel tutar gir</option>
+          </select>
+        </div>
+        <div class="full"><label>Özel Tutar (₺) — sadece "Özel" seçiliyse</label>
+          <input type="number" step="0.01" name="ozelTutar" placeholder="0.00">
+        </div>
+        <div class="full"><label>Açıklama</label><input name="aciklama" value="Aylık Aidat"></div>
+      </div>
+      <p class="hint" style="text-align:left">Tüm daireler için seçili döneme ait aidat borcu oluşturulur. Aynı dönemde daha önce tahakkuk varsa o daire atlanır.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary">Tahakkuk Et</button>
+      </div>
+    </form>
+  `);
+}
+
+function topluTahakkukKaydet(e){
+  e.preventDefault();
+  const f = e.target;
+  const ay = f.ay.value;
+  const tip = f.tutarTipi.value;
+  const ozel = Number(f.ozelTutar.value) || 0;
+  const aciklama = f.aciklama.value.trim();
+  if(!ay) return false;
+
+  const users = read(K.users);
+  const tah = read(K.tah);
+  let eklenen = 0, atlanan = 0;
+
+  users.forEach(u => {
+    if(tah.some(t => t.daireId === u.id && t.ay === ay)){ atlanan++; return; }
+    const tutar = tip === 'ozel' ? ozel : (Number(u.aidat) || 0);
+    tah.push({ id:uid(), daireId:u.id, ay, tutar, tarih: today(), aciklama });
+    eklenen++;
+  });
+
+  write(K.tah, tah);
+  closeModal();
+  renderAdmAidat();
+  alert(`${eklenen} daireye tahakkuk eklendi.${atlanan ? ` ${atlanan} daire zaten kayıtlı olduğu için atlandı.` : ''}`);
+  return false;
+}
+
+function tahakkukForm(){
+  const users = read(K.users);
+  if(!users.length){ alert('Önce daire ekleyin.'); return; }
+
+  openModal('Tek Daire Tahakkuk', `
+    <form onsubmit="return tahakkukKaydet(event)">
+      <div class="form-grid">
+        <div class="full"><label>Daire</label>
+          <select name="daireId" required>
+            ${users.map(u=>`<option value="${u.id}">${esc(u.blok)}-${esc(u.daire)} — ${esc(u.ad)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label>Dönem</label><input type="month" name="ay" value="${thisMonth()}" required></div>
+        <div><label>Tutar (₺)</label><input type="number" step="0.01" name="tutar" required></div>
+        <div class="full"><label>Açıklama</label><input name="aciklama" placeholder="Aidat"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary">Kaydet</button>
+      </div>
+    </form>
+  `);
+
+  const sel = document.querySelector('#modalBody select[name=daireId]');
+  const inp = document.querySelector('#modalBody input[name=tutar]');
+  const setT = () => { const u = users.find(x=>x.id===sel.value); if(u) inp.value = u.aidat || 0; };
+  sel.onchange = setT; setT();
+}
+
+function tahakkukKaydet(e){
+  e.preventDefault();
+  const f = e.target;
+  const rec = {
+    id: uid(), daireId: f.daireId.value, ay: f.ay.value,
+    tutar: Number(f.tutar.value), tarih: today(), aciklama: f.aciklama.value.trim()
+  };
+  if(!rec.daireId || !rec.ay || !rec.tutar) return false;
+
+  const tah = read(K.tah);
+  if(tah.some(t => t.daireId === rec.daireId && t.ay === rec.ay)){
+    alert('Bu daire için bu dönemde zaten tahakkuk var.');
+    return false;
+  }
+  tah.push(rec);
+  write(K.tah, tah);
+  closeModal();
+  renderAdmAidat();
+  return false;
+}
+
+function odemeForm(){
+  const users = read(K.users);
+  if(!users.length){ alert('Önce daire ekleyin.'); return; }
+
+  openModal('Aidat Girişi (Ödeme Al)', `
+    <form onsubmit="return odemeKaydet(event)">
+      <div class="form-grid">
+        <div class="full"><label>Daire</label>
+          <select name="daireId" required>
+            ${users.map(u=>`<option value="${u.id}">${esc(u.blok)}-${esc(u.daire)} — ${esc(u.ad)}</option>`).join('')}
+          </select>
+        </div>
+        <div><label>Dönem</label><input type="month" name="ay" value="${thisMonth()}" required></div>
+        <div><label>Tutar (₺)</label><input type="number" step="0.01" name="tutar" required></div>
+        <div><label>Ödeme Tarihi</label><input type="date" name="tarih" value="${today()}" required></div>
+        <div><label>Yöntem</label>
+          <select name="yontem">
+            <option>Nakit</option><option>Havale/EFT</option><option>Kredi Kartı</option><option>Diğer</option>
+          </select>
+        </div>
+        <div class="full"><label>Açıklama</label><input name="aciklama" placeholder="Aidat ödemesi"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+        <button class="btn btn-success">Ödemeyi Kaydet</button>
+      </div>
+    </form>
+  `);
+
+  const sel = document.querySelector('#modalBody select[name=daireId]');
+  const inp = document.querySelector('#modalBody input[name=tutar]');
+  const setT = () => { const u = users.find(x=>x.id===sel.value); if(u) inp.value = u.aidat || 0; };
+  sel.onchange = setT; setT();
+}
+
+function odemeKaydet(e){
+  e.preventDefault();
+  const f = e.target;
+  const rec = {
+    id: uid(), daireId: f.daireId.value, ay: f.ay.value,
+    tutar: Number(f.tutar.value), tarih: f.tarih.value,
+    yontem: f.yontem.value, aciklama: f.aciklama.value.trim()
+  };
+  if(!rec.daireId || !rec.ay || !rec.tutar) return false;
+  const ode = read(K.ode);
+  ode.push(rec);
+  write(K.ode, ode);
+  closeModal();
+  renderAdmAidat();
+  return false;
+}
+
+function silTah(id){ if(!confirm('Kayıt silinsin mi?')) return; write(K.tah, read(K.tah).filter(x=>x.id!==id)); renderAdmAidat(); }
+function silOde(id){ if(!confirm('Kayıt silinsin mi?')) return; write(K.ode, read(K.ode).filter(x=>x.id!==id)); renderAdmAidat(); }
+
+/* ============================================================
+   9. YÖNETİCİ — HARCAMALAR (AİDAT ÇIKIŞI)
+   ============================================================ */
+function renderAdmHarcama(){
+  const har = read(K.har).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+  const toplam = har.reduce((s,x)=>s + Number(x.tutar), 0);
+
+  document.getElementById('adm-harcama').innerHTML = `
+    <h2 class="page-title">Harcamalar (Aidat Çıkışı)
+      <button class="btn btn-primary" onclick="harcamaForm()">+ Yeni Harcama</button>
+    </h2>
+    <div class="stats">
+      <div class="stat red"><div class="label">Toplam Harcama</div><div class="value">${fmt(toplam)}</div></div>
+      <div class="stat"><div class="label">Kayıt Sayısı</div><div class="value">${har.length}</div></div>
+    </div>
+    ${har.length ? `
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tarih</th><th>Kategori</th><th>Açıklama</th><th>Tutar</th><th></th></tr></thead>
+        <tbody>
+          ${har.map(h=>`<tr>
+            <td>${fmtT(h.tarih)}</td>
+            <td><span class="badge info">${esc(h.kategori)}</span></td>
+            <td>${esc(h.aciklama)}</td>
+            <td><span class="badge bad">${fmt(h.tutar)}</span></td>
+            <td class="actions">
+              <button class="btn btn-outline btn-sm" onclick="harcamaForm('${h.id}')">Düzenle</button>
+              <button class="btn btn-danger btn-sm" onclick="harSil('${h.id}')">Sil</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>` : '<div class="card empty">Harcama kaydı yok.</div>'}
+  `;
+}
+
+function harcamaForm(id){
+  const h = id ? read(K.har).find(x=>x.id===id) : null;
+
+  openModal(h ? 'Harcama Düzenle' : 'Yeni Harcama', `
+    <form onsubmit="return harcamaKaydet(event, ${id ? `'${id}'` : 'null'})">
+      <div class="form-grid">
+        <div><label>Kategori</label>
+          <select name="kategori" required>
+            ${KATEGORILER.map(k=>`<option ${h?.kategori===k?'selected':''}>${k}</option>`).join('')}
+          </select>
+        </div>
+        <div><label>Tarih</label><input type="date" name="tarih" value="${h?.tarih || today()}" required></div>
+        <div class="full"><label>Açıklama</label><input name="aciklama" value="${esc(h?.aciklama||'')}" required></div>
+        <div class="full"><label>Tutar (₺)</label><input type="number" step="0.01" name="tutar" value="${h?.tutar ?? ''}" required></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary">Kaydet</button>
+      </div>
+    </form>
+  `);
+}
+
+function harcamaKaydet(e, id){
+  e.preventDefault();
+  const f = e.target;
+  const rec = {
+    kategori: f.kategori.value, tarih: f.tarih.value,
+    aciklama: f.aciklama.value.trim(), tutar: Number(f.tutar.value)
+  };
+  if(!rec.tutar || !rec.aciklama) return false;
+
+  const har = read(K.har);
+  if(id){
+    const i = har.findIndex(x=>x.id===id);
+    har[i] = { ...har[i], ...rec };
+  } else {
+    har.push({ id: uid(), ...rec });
+  }
+  write(K.har, har);
+  closeModal();
+  renderAdmHarcama();
+  return false;
+}
+
+function harSil(id){
+  if(!confirm('Harcama silinsin mi?')) return;
+  write(K.har, read(K.har).filter(x=>x.id!==id));
+  renderAdmHarcama();
+}
+
+/* ============================================================
+   10. YÖNETİCİ — DUYURULAR
+   ============================================================ */
+function renderAdmDuyuru(){
+  const duy = read(K.duy).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+
+  document.getElementById('adm-duyuru').innerHTML = `
+    <h2 class="page-title">Duyurular
+      <button class="btn btn-primary" onclick="duyuruForm()">+ Yeni Duyuru</button>
+    </h2>
+    ${duy.length ? duy.map(d=>`
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+          <div>
+            <h3>${d.onemli ? '🔴 ' : ''}${esc(d.baslik)}</h3>
+            <div class="muted" style="font-size:12px;margin-top:2px">${fmtT(d.tarih)}</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-outline btn-sm" onclick="duyuruForm('${d.id}')">Düzenle</button>
+            <button class="btn btn-danger btn-sm" onclick="duySil('${d.id}')">Sil</button>
+          </div>
+        </div>
+        <p style="margin-top:12px;white-space:pre-wrap">${esc(d.icerik)}</p>
+      </div>
+    `).join('') : '<div class="card empty">Duyuru yok.</div>'}
+  `;
+}
+
+function duyuruForm(id){
+  const d = id ? read(K.duy).find(x=>x.id===id) : null;
+
+  openModal(d ? 'Duyuru Düzenle' : 'Yeni Duyuru', `
+    <form onsubmit="return duyuruKaydet(event, ${id ? `'${id}'` : 'null'})">
+      <div class="form-grid">
+        <div class="full"><label>Başlık</label><input name="baslik" value="${esc(d?.baslik||'')}" required></div>
+        <div class="full"><label>İçerik</label><textarea name="icerik" rows="5" required>${esc(d?.icerik||'')}</textarea></div>
+        <div><label>Tarih</label><input type="date" name="tarih" value="${d?.tarih || today()}" required></div>
+        <div><label>Önemli mi?</label>
+          <select name="onemli">
+            <option value="0" ${!d?.onemli?'selected':''}>Hayır</option>
+            <option value="1" ${d?.onemli?'selected':''}>Evet</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary">Kaydet</button>
+      </div>
+    </form>
+  `);
+}
+
+function duyuruKaydet(e, id){
+  e.preventDefault();
+  const f = e.target;
+  const rec = {
+    baslik: f.baslik.value.trim(), icerik: f.icerik.value.trim(),
+    tarih: f.tarih.value, onemli: f.onemli.value === '1'
+  };
+  if(!rec.baslik || !rec.icerik) return false;
+
+  const duy = read(K.duy);
+  if(id){
+    const i = duy.findIndex(x=>x.id===id);
+    duy[i] = { ...duy[i], ...rec };
+  } else {
+    duy.push({ id: uid(), ...rec });
+  }
+  write(K.duy, duy);
+  closeModal();
+  renderAdmDuyuru();
+  return false;
+}
+
+function duySil(id){
+  if(!confirm('Duyuru silinsin mi?')) return;
+  write(K.duy, read(K.duy).filter(x=>x.id!==id));
+  renderAdmDuyuru();
+}
+
+/* ============================================================
+   11. YÖNETİCİ — AYARLAR
+   ============================================================ */
+function renderAdmAyar(){
+  const a = read(K.ayr);
+  document.getElementById('adm-ayar').innerHTML = `
+    <h2 class="page-title">Ayarlar</h2>
+    <div class="card">
+      <form onsubmit="return ayarKaydet(event)">
+        <div class="form-grid">
+          <div class="full"><label>Site / Apartman Adı</label>
+            <input name="siteAdi" value="${esc(a.siteAdi)}" required></div>
+          <div><label>Varsayılan Aylık Aidat (₺)</label>
+            <input type="number" step="0.01" name="aylikAidat" value="${a.aylikAidat}" required></div>
+          <div><label>Yönetici Kullanıcı Adı</label>
+            <input name="admUser" value="${esc(a.admUser)}" required></div>
+          <div class="full"><label>Yönetici Şifresi</label>
+            <input name="admPass" value="${esc(a.admPass)}" required></div>
+        </div>
+        <div class="modal-actions"><button class="btn btn-primary">Kaydet</button></div>
+      </form>
+    </div>
+    <div class="card" style="border-left:4px solid var(--bad)">
+      <h3 style="margin-bottom:8px">⚠️ Tehlikeli Bölge</h3>
+      <p class="muted" style="margin-bottom:12px">Tüm verileri (daireler, aidatlar, harcamalar, duyurular) siler ve sistemi fabrika ayarlarına döndürür.</p>
+      <button class="btn btn-danger" onclick="veriSifirla()">Tüm Verileri Sıfırla</button>
+    </div>
+  `;
+}
+
+function ayarKaydet(e){
+  e.preventDefault();
+  const f = e.target;
+  const yeni = {
+    siteAdi: f.siteAdi.value.trim(),
+    aylikAidat: Number(f.aylikAidat.value) || 0,
+    admUser: f.admUser.value.trim(),
+    admPass: f.admPass.value
+  };
+  if(!yeni.siteAdi || !yeni.admUser || !yeni.admPass) return false;
+  write(K.ayr, yeni);
+  document.getElementById('loginSiteAdi').textContent = yeni.siteAdi;
+  document.getElementById('adminBrand').textContent = yeni.siteAdi;
+  document.getElementById('resBrand').textContent = yeni.siteAdi;
+  alert('Ayarlar kaydedildi.');
+  return false;
+}
+
+function veriSifirla(){
+  if(!confirm('TÜM VERİLER SİLİNECEK! Emin misiniz?')) return;
+  if(!confirm('Bu işlem geri alınamaz. Son kez onaylıyor musunuz?')) return;
+  Object.values(K).forEach(k => localStorage.removeItem(k));
+  location.reload();
+}
+
+/* ============================================================
+   12. MALİK PANELİ
+   ============================================================ */
+function renderResGenel(){
+  const u = currentResident();
+  if(!u) return;
+  const { t, o, b } = resBakiye(u.id);
+  const duy = read(K.duy).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||'')).slice(0,3);
+
+  document.getElementById('res-genel').innerHTML = `
+    <h2 class="page-title">Merhaba, ${esc(u.ad)}</h2>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+        <div>
+          <div class="muted" style="font-size:11px;letter-spacing:.5px">BLOK / DAİRE</div>
+          <div style="font-size:20px;font-weight:700">${esc(u.blok)}-${esc(u.daire)}</div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:11px;letter-spacing:.5px">AYLIK AİDAT</div>
+          <div style="font-size:20px;font-weight:700">${fmt(u.aidat)}</div>
+        </div>
+        <div>
+          <div class="muted" style="font-size:11px;letter-spacing:.5px">İLETİŞİM</div>
+          <div style="font-size:14px">${esc(u.telefon||'-')}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat ${b>0?'red':'green'}">
+        <div class="label">${b>0 ? 'Güncel Borcunuz' : (b<0 ? 'Alacağınız' : 'Bakiyeniz')}</div>
+        <div class="value">${fmt(Math.abs(b))}</div>
+      </div>
+      <div class="stat orange"><div class="label">Toplam Tahakkuk</div><div class="value">${fmt(t)}</div></div>
+      <div class="stat green"><div class="label">Toplam Ödemeniz</div><div class="value">${fmt(o)}</div></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">📢 Son Duyurular</h3>
+      ${duy.length ? duy.map(d=>`
+        <div style="padding:10px 0;border-bottom:1px solid var(--bd)">
+          <strong>${d.onemli ? '🔴 ' : ''}${esc(d.baslik)}</strong>
+          <div class="muted" style="font-size:12px">${fmtT(d.tarih)}</div>
+        </div>
+      `).join('') : '<div class="empty">Duyuru yok</div>'}
+    </div>
+  `;
+}
+
+function renderResAidat(){
+  const u = currentResident();
+  if(!u) return;
+  const tah = read(K.tah).filter(x=>x.daireId===u.id).sort((a,b)=>(b.ay||'').localeCompare(a.ay||''));
+  const ode = read(K.ode).filter(x=>x.daireId===u.id).sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+  const { t, o, b } = resBakiye(u.id);
+
+  document.getElementById('res-aidat').innerHTML = `
+    <h2 class="page-title">Aidatlarım</h2>
+    <div class="stats">
+      <div class="stat ${b>0?'red':'green'}"><div class="label">Kalan Bakiye</div><div class="value">${fmt(b)}</div></div>
+      <div class="stat orange"><div class="label">Toplam Tahakkuk</div><div class="value">${fmt(t)}</div></div>
+      <div class="stat green"><div class="label">Ödenen</div><div class="value">${fmt(o)}</div></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">Borçlandırmalar</h3>
+      ${tah.length ? `
+        <div class="table-wrap"><table>
+          <thead><tr><th>Dönem</th><th>Açıklama</th><th>Tutar</th></tr></thead>
+          <tbody>${tah.map(x=>`<tr>
+            <td>${fmtAy(x.ay)}</td><td>${esc(x.aciklama||'-')}</td><td>${fmt(x.tutar)}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>` : '<div class="empty">Kayıt yok</div>'}
+    </div>
+
+    <div class="card">
+      <h3 style="margin-bottom:12px">Ödemelerim</h3>
+      ${ode.length ? `
+        <div class="table-wrap"><table>
+          <thead><tr><th>Tarih</th><th>Dönem</th><th>Yöntem</th><th>Tutar</th></tr></thead>
+          <tbody>${ode.map(x=>`<tr>
+            <td>${fmtT(x.tarih)}</td><td>${fmtAy(x.ay)}</td>
+            <td>${esc(x.yontem||'-')}</td>
+            <td><span class="badge ok">${fmt(x.tutar)}</span></td>
+          </tr>`).join('')}</tbody>
+        </table></div>` : '<div class="empty">Ödeme kaydı yok</div>'}
+    </div>
+  `;
+}
+
+function renderResHarcama(){
+  const har = read(K.har).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+  const toplam = har.reduce((s,x)=>s + Number(x.tutar), 0);
+
+  document.getElementById('res-harcama').innerHTML = `
+    <h2 class="page-title">Site Harcamaları</h2>
+    <div class="stats">
+      <div class="stat red"><div class="label">Toplam Harcama</div><div class="value">${fmt(toplam)}</div></div>
+      <div class="stat"><div class="label">Kayıt Sayısı</div><div class="value">${har.length}</div></div>
+    </div>
+    ${har.length ? `
+      <div class="table-wrap"><table>
+        <thead><tr><th>Tarih</th><th>Kategori</th><th>Açıklama</th><th>Tutar</th></tr></thead>
+        <tbody>${har.map(h=>`<tr>
+          <td>${fmtT(h.tarih)}</td>
+          <td><span class="badge info">${esc(h.kategori)}</span></td>
+          <td>${esc(h.aciklama)}</td>
+          <td>${fmt(h.tutar)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>` : '<div class="card empty">Kayıt yok</div>'}
+  `;
+}
+
+function renderResDuyuru(){
+  const duy = read(K.duy).slice().sort((a,b)=>(b.tarih||'').localeCompare(a.tarih||''));
+
+  document.getElementById('res-duyuru').innerHTML = `
+    <h2 class="page-title">Duyurular</h2>
+    ${duy.length ? duy.map(d=>`
+      <div class="card" ${d.onemli ? 'style="border-left:4px solid var(--bad)"' : ''}>
+        <h3>${d.onemli ? '🔴 ' : ''}${esc(d.baslik)}</h3>
+        <div class="muted" style="font-size:12px;margin-top:2px">${fmtT(d.tarih)}</div>
+        <p style="margin-top:12px;white-space:pre-wrap">${esc(d.icerik)}</p>
+      </div>
+    `).join('') : '<div class="card empty">Duyuru yok</div>'}
+  `;
+}
+
+/* ============================================================
+   13. BAŞLATICI (DOM Ready)
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+
+  const a = read(K.ayr);
+  document.getElementById('loginSiteAdi').textContent = a.siteAdi;
+  document.getElementById('adminBrand').textContent = a.siteAdi;
+  document.getElementById('resBrand').textContent = a.siteAdi;
+
+  // Giriş sekmeleri
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+    const isAdmin = t.dataset.tab === 'admin';
+    document.getElementById('adminLoginForm').classList.toggle('hidden', !isAdmin);
+    document.getElementById('residentLoginForm').classList.toggle('hidden', isAdmin);
+  }));
+
+  // Yönetici girişi
+  document.getElementById('adminLoginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const u = document.getElementById('admUser').value.trim();
+    const p = document.getElementById('admPass').value;
+    const ayar = read(K.ayr);
+    if(u === ayar.admUser && p === ayar.admPass){
+      session = { type:'admin' };
+      localStorage.setItem(K.ses, JSON.stringify(session));
+      showAdmin();
+    } else {
+      alert('Kullanıcı adı veya şifre hatalı!');
+    }
+  });
+
+  // Malik girişi
+  document.getElementById('residentLoginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const u = document.getElementById('resUser').value.trim();
+    const p = document.getElementById('resPass').value;
+    const user = read(K.users).find(x => x.kullanici === u && x.sifre === p);
+    if(user){
+      session = { type:'resident', userId: user.id };
+      localStorage.setItem(K.ses, JSON.stringify(session));
+      showResident(user);
+    } else {
+      alert('Kullanıcı adı veya şifre hatalı!');
+    }
+  });
+
+  // Menü tıklamaları
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const panel = btn.closest('.panel');
+      const pageId = btn.dataset.page;
+      panel.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b === btn));
+      panel.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === pageId));
+      renderPage(pageId);
+    });
+  });
+
+  // Modal arka planına tıklayınca kapat
+  document.getElementById('modal').addEventListener('click', e => {
+    if(e.target.id === 'modal') closeModal();
+  });
+
+  // Otomatik giriş (sayfa yenilenirse)
+  if(session){
+    if(session.type === 'admin'){
+      showAdmin();
+    } else {
+      const u = read(K.users).find(x => x.id === session.userId);
+      if(u) showResident(u);
+      else { session = null; localStorage.removeItem(K.ses); }
+    }
+  }
+});
+</script>
+</body>
+</html>
